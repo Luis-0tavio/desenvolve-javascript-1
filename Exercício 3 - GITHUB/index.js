@@ -1,4 +1,4 @@
-var livros = [];
+var livros = [{ Titulo: 'Harry Potter: A Ordem da Fênix', Autor: 'JK Rowling', Quantidade: 50 }];
 
 function adicionarLivro(titulo, autor, quantidade) {
     if (!livros.find(livro => livro.Titulo == titulo)) {

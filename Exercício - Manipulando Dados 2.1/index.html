@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Busca de Usuários GitHub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #58a6ff;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px;
+      width: 250px;
+      border: 1px solid #30363d;
+      border-radius: 5px;
+      background: #161b22;
+      color: #c9d1d9;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #238636;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2ea043;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    li {
+      background: #161b22;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+
+    a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    #mensagem {
+      color: #f85149;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Buscar Usuários no GitHub</h1>
+
+  <div class="search-container">
+    <input type="text" id="campoBusca" placeholder="Digite o nome do usuário..." />
+    <button id="botaoBuscar">Buscar</button>
+  </div>
+
+  <ul id="listaUsuarios"></ul>
+  <p id="mensagem"></p>
+
+  <script>
+    const botaoBuscar = document.getElementById('botaoBuscar');
+    const campoBusca = document.getElementById('campoBusca');
+    const listaUsuarios = document.getElementById('listaUsuarios');
+    const mensagem = document.getElementById('mensagem');
+
+    botaoBuscar.addEventListener('click', () => {
+      const termo = campoBusca.value.trim();
+      listaUsuarios.innerHTML = '';
+      mensagem.textContent = '';
+
+      if (termo === '') {
+        mensagem.textContent = 'Digite algo para buscar.';
+        return;
+      }
+
+      fetch(`https://api.github.com/search/users?q=${termo}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.total_count === 0) {
+            mensagem.textContent = 'Não foram encontrados usuários para esta pesquisa.';
+          } else {
+            data.items.forEach(usuario => {
+              const li = document.createElement('li');
+              li.innerHTML = `
+                <img src="${usuario.avatar_url}" alt="${usuario.login}">
+                <div>
+                  <a href="${usuario.html_url}" target="_blank">${usuario.login}</a>
+                </div>
+              `;
+              listaUsuarios.appendChild(li);
+            });
+          }
+        })
+        .catch(error => {
+          mensagem.textContent = 'Ocorreu um erro ao buscar os usuários.';
+          console.error(error);
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Twitter - Feed de Gatinhos</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f2f5; }
+  header { position: fixed; top: 0; left: 0; right: 0; background: #fff; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; }
+  textarea { width: 80%; height: 60px; padding: 10px; resize: none; }
+  button { padding: 10px 15px; margin-left: 10px; cursor: pointer; }
+  main { padding-top: 100px; max-width: 600px; margin: auto; }
+  .post { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
+  .username { font-weight: bold; }
+  .post img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+  .like-btn { margin-top: 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <textarea id="postText" placeholder="O que você está pensando?"></textarea>
+  <button id="postBtn">Postar</button>
+</header>
+
+<main id="feed"></main>
+
+<script>
+  const feed = document.getElementById('feed');
+  const postText = document.getElementById('postText');
+  const postBtn = document.getElementById('postBtn');
+
+  let posts = [];
+
+  async function getCatImage() {
+    try {
+      const response = await fetch('https://api.thecatapi.com/v1/images/search');
+      const data = await response.json();
+      return data[0].url;
+    } catch (error) {
+      console.error('Erro ao buscar imagem do gato:', error);
+      return '';
+    }
+  }
+
+  function renderFeed() {
+    feed.innerHTML = '';
+    posts.slice().reverse().forEach((post, index) => {
+      const postDiv = document.createElement('div');
+      postDiv.className = 'post';
+
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'post-header';
+      const avatarImg = document.createElement('img');
+      avatarImg.src = post.avatar;
+      avatarImg.className = 'avatar';
+      const usernameSpan = document.createElement('span');
+      usernameSpan.textContent = post.username;
+      usernameSpan.className = 'username';
+      headerDiv.appendChild(avatarImg);
+      headerDiv.appendChild(usernameSpan);
+
+      const textP = document.createElement('p');
+      textP.textContent = post.text;
+
+      const catImg = document.createElement('img');
+      catImg.src = post.catImage;
+
+      const likeBtn = document.createElement('button');
+      likeBtn.textContent = `Curtir (${post.likes})`;
+      likeBtn.className = 'like-btn';
+      likeBtn.addEventListener('click', () => {
+        post.likes++;
+        renderFeed();
+      });
+
+      postDiv.appendChild(headerDiv);
+      postDiv.appendChild(textP);
+      postDiv.appendChild(catImg);
+      postDiv.appendChild(likeBtn);
+
+      feed.appendChild(postDiv);
+    });
+  }
+
+  postBtn.addEventListener('click', async () => {
+    const text = postText.value.trim();
+    if (text === '') return;
+
+    const newPost = {
+      date: new Date(),
+      username: 'Luis Azevedo', // você pode alterar ou criar um campo para input
+      avatar: 'https://i.pravatar.cc/40', // avatar aleatório
+      text,
+      catImage: await getCatImage(),
+      likes: 0
+    };
+
+    posts.push(newPost);
+    postText.value = '';
+    renderFeed();
+  });
+
+</script>
+
+</body>
+</html>
